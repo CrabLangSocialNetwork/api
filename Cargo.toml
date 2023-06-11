@@ -14,3 +14,4 @@ tower-http = { version = "0.4.0", features = ["fs"] }
 surrealdb = "1.0.0-beta.9"
 rand = "0.8.5"
 surrealdb-migrations = "0.9.9"
+tower = "0.4.13"
