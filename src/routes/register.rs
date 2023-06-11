@@ -1,8 +1,10 @@
-use axum::{response::IntoResponse, Json};
+use axum::{response::IntoResponse, Json, extract::State};
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Serialize, Deserialize};
 
-use crate::routes::{DB, structs::{User, ServerError, ServerSuccess}};
+use crate::{routes::{structs::{User, ServerError, ServerSuccess}}};
+
+use super::DbState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterUser {
@@ -12,7 +14,7 @@ pub struct RegisterUser {
     is_male: Option<bool>
 }
 
-pub async fn register(Json(user): Json<RegisterUser>) -> impl IntoResponse {
+pub async fn register(State(state): State<DbState>, Json(user): Json<RegisterUser>) -> impl IntoResponse {
     let user = User {
         id: None,
         email: user.email,
@@ -22,7 +24,7 @@ pub async fn register(Json(user): Json<RegisterUser>) -> impl IntoResponse {
         token: Alphanumeric.sample_string(&mut rand::thread_rng(), 256)
     };
 
-    let _: User = match DB.create("user").content(user).await {
+    let _: User = match state.db.create("user").content(user).await {
         Ok(user) => user,
         Err(_) => return Json(ServerError{error:"Erreur lors de la création du compte".to_string()}).into_response()
     };

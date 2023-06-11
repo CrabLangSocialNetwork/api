@@ -1,21 +1,17 @@
 mod routes;
 
-use std::net::SocketAddr;
+use std::{net::SocketAddr, process::exit};
 
-use routes::{create_routes, DB};
-use surrealdb::{engine::remote::{ws::{Ws}}, opt::auth::Root};
+use routes::{create_routes};
 
 pub async fn run() -> surrealdb::Result<()> {
-    DB.connect::<Ws>("localhost:8000").await?;
-
-    DB.signin(Root {
-        username: "root",
-        password: "root"
-    }).await?;
-
-    DB.use_ns("main").use_db("main").await?;
-
-    let app = create_routes();
+    let app = match create_routes().await {
+        Ok(app) => app,
+        Err(e) => {
+            println!("{e}");
+            exit(-1);
+        }
+    };
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
