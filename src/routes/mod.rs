@@ -3,19 +3,35 @@ mod register;
 mod users;
 mod structs;
 
-use axum::{Router, routing::{get, post}};
+use std::net::SocketAddr;
 
+use axum::{Router, routing::{get, post}, http::{Request, StatusCode}, middleware::{Next, self}, response::Response, extract::ConnectInfo};
+
+use log::info;
 use login::login;
 use surrealdb::{Surreal, engine::remote::ws::{Client, Ws}, opt::auth::Root};
 use tower::ServiceBuilder;
 
 use {register::register, users::get_users};
 
-use tower_http::trace::TraceLayer;
-
 #[derive(Clone)]
 pub struct DbState {
     db: Surreal<Client>
+}
+
+async fn log_middleware<B>(ConnectInfo(addr): ConnectInfo<SocketAddr>, request: Request<B>, next: Next<B>) -> Response {
+    info!("{}: {} {}", addr, request.method(), request.uri());
+
+    next.run(request).await
+}
+
+async fn auth_middleware<B>(request: Request<B>, next: Next<B>) -> Response {
+    let token = match request.headers().get("token") {
+        Some(token) => token,
+        None => return next.run(request).await
+    };
+
+    next.run(request).await
 }
 
 pub async fn create_routes() -> Result<Router, String> {
@@ -47,7 +63,7 @@ pub async fn create_routes() -> Result<Router, String> {
             .with_state(shared_state)
             .layer(
                 ServiceBuilder::new()
-                    .layer(TraceLayer::new_for_http())
+                    .layer(middleware::from_fn(log_middleware))
             )
     )
 }

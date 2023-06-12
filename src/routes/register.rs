@@ -1,4 +1,4 @@
-use axum::{response::IntoResponse, Json, extract::State};
+use axum::{response::IntoResponse, Json, extract::State, http::StatusCode};
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Serialize, Deserialize};
 
@@ -26,8 +26,8 @@ pub async fn register(State(state): State<DbState>, Json(user): Json<RegisterUse
 
     let _: User = match state.db.create("user").content(user).await {
         Ok(user) => user,
-        Err(_) => return Json(ServerError{error:"Erreur lors de la création du compte".to_string()}).into_response()
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(ServerError{error:"Erreur lors de la création du compte".to_string()})).into_response()
     };
 
-    Json(ServerSuccess{message: "Compté créé avec succès".to_string()}).into_response()
+    (StatusCode::OK, Json(ServerSuccess{message: "Compté créé avec succès".to_string()})).into_response()
 }
