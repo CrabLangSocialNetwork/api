@@ -1,4 +1,4 @@
-use api_v2_surrealdb::run;
+use api::run;
 
 #[tokio::main]
 async fn main() -> surrealdb::Result<()> {

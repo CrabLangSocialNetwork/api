@@ -1,26 +1,39 @@
-use axum::{Json, response::IntoResponse, http::StatusCode, extract::State};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
+use super::{register::IdUser, DbState};
 
-use crate::{routes::structs::{ServerError, ServerSuccess, User}};
+#[derive(Serialize, Deserialize)]
+pub struct PublicUser {
+    username: String,
+    is_male: Option<bool>,
+}
 
-use super::DbState;
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct LoginUser {
     username_or_email: String,
-    password: String
+    password: String,
 }
 
 pub async fn login(State(state): State<DbState>, Json(user): Json<LoginUser>) -> impl IntoResponse {
-    let result: Vec<User> = match state.db.select((format!("alias:{}", user.username_or_email), "FETCH user")).await {
-        Ok(users) => users,
-        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(ServerError{error:"Erreur lors de la connexion".to_string()})).into_response()
+    let fetched_user: IdUser = match state
+        .db
+        .select(("login", user.username_or_email.clone()))
+        .await
+    {
+        Ok(user) => user,
+        Err(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Erreur lors de l'obtention des utilisateurs"),
+            )
+                .into_response()
+        }
     };
 
-    if result[0].password == user.password {
-        return (StatusCode::OK, Json(ServerSuccess{message:"Connecté avec succès".to_string()})).into_response()
+    if user.password == fetched_user.password {
+        Json(fetched_user).into_response()
+    } else {
+        StatusCode::FORBIDDEN.into_response()
     }
-
-    (StatusCode::FORBIDDEN, Json(ServerError{error:"Identifiants invalides".to_string()})).into_response()
 }

@@ -1,5 +1,5 @@
 [package]
-name = "api-v2-surrealdb"
+name = "api"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,3 +17,4 @@ surrealdb-migrations = "0.9.9"
 tower = "0.4.13"
 simple-logging = "2.0.2"
 log = "0.4.19"
+pwhash = "1.0.0"
