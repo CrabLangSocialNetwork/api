@@ -1,5 +1,5 @@
 mod get_users;
-mod middlewares;
+mod login;
 mod register;
 
 use axum::{
@@ -7,12 +7,13 @@ use axum::{
     Router,
 };
 use surrealdb::{engine::remote::ws::Client, Error, Surreal};
+use tower_cookies::CookieManagerLayer;
 
 use crate::database::connect;
 
 use register::register;
 
-use self::get_users::get_users;
+use self::{get_users::get_users, login::login};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -30,5 +31,7 @@ pub async fn create_routes() -> Result<Router, Error> {
     Ok(Router::new()
         .route("/register", post(register))
         .route("/users", get(get_users))
-        .with_state(DbState { db }))
+        .route("/login", post(login))
+        .with_state(DbState { db })
+        .layer(CookieManagerLayer::new()))
 }

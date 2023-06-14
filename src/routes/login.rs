@@ -1,13 +1,9 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use hashes::sha3::sha512::hash;
 use serde::{Deserialize, Serialize};
+use tower_cookies::{Cookie, Cookies};
 
-use super::{register::IdUser, DbState};
-
-#[derive(Serialize, Deserialize)]
-pub struct PublicUser {
-    username: String,
-    is_male: Option<bool>,
-}
+use super::{register::User, DbState};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginUser {
@@ -15,25 +11,36 @@ pub struct LoginUser {
     password: String,
 }
 
-pub async fn login(State(state): State<DbState>, Json(user): Json<LoginUser>) -> impl IntoResponse {
-    let fetched_user: IdUser = match state
-        .db
-        .select(("login", user.username_or_email.clone()))
-        .await
-    {
-        Ok(user) => user,
-        Err(_) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json("Erreur lors de l'obtention des utilisateurs"),
-            )
-                .into_response()
-        }
+pub async fn login(
+    cookies: Cookies,
+    State(state): State<DbState>,
+    Json(credentials): Json<LoginUser>,
+) -> impl IntoResponse {
+    let search_by = if credentials.username_or_email.contains("@") {
+        "email"
+    } else {
+        "username"
     };
 
-    if user.password == fetched_user.password {
-        Json(fetched_user).into_response()
-    } else {
-        StatusCode::FORBIDDEN.into_response()
+    let mut users = state
+        .db
+        .query(format!("SELECT * FROM user WHERE {search_by} = $value"))
+        .bind(("value", credentials.username_or_email))
+        .await
+        .unwrap();
+
+    let option_user: Option<User> = users.take(0).unwrap_or_default();
+
+    if let Some(user) = option_user {
+        let hashed_password = hash(credentials.password.as_bytes()).into_bytes().to_vec();
+
+        if user.password == hashed_password {
+            return (
+                StatusCode::OK,
+                cookies.add(Cookie::new("token", user.token)),
+            )
+                .into_response();
+        }
     }
+    (StatusCode::FORBIDDEN, "Identifiants invalides").into_response()
 }

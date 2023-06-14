@@ -1,5 +1,5 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use pwhash::sha512_crypt;
+use hashes::sha3::sha512::hash;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
@@ -19,9 +19,9 @@ pub struct User {
     id: Option<Thing>,
     email: String,
     username: String,
-    password: String,
+    pub(crate) password: Vec<u8>,
     is_male: Option<bool>,
-    token: String,
+    pub(crate) token: String,
 }
 
 pub async fn register(
@@ -30,10 +30,9 @@ pub async fn register(
 ) -> impl IntoResponse {
     let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
 
-    let hashed_password = match sha512_crypt::hash(register_user.password) {
-        Ok(hash) => hash,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    };
+    let hashed_password = hash(register_user.password.as_bytes())
+        .into_bytes()
+        .to_vec();
 
     let user: PublicUser = match state
         .db
