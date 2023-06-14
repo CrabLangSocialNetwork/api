@@ -6,7 +6,7 @@ Suivez les indications à ce lien : https://surrealdb.com/install
 
 # 2. Lancez SurrealDB
 Pour une base de données stockée en mémoire faites :
-```rust
+```bash
 surreal start --log debug --user root --pass root memory
 ```
 
