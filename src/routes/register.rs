@@ -4,52 +4,47 @@ use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use super::DbState;
+use super::{get_users::PublicUser, DbState};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterUser {
+    email: String,
     username: String,
     password: String,
-    email: String,
     is_male: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct IdUser {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct User {
     id: Option<Thing>,
-    links: Vec<String>,
-    pub password: String,
+    email: String,
+    username: String,
+    password: String,
     is_male: Option<bool>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Login {
-    id: Thing,
+    token: String,
 }
 
 pub async fn register(
     State(state): State<DbState>,
-    Json(user): Json<RegisterUser>,
+    Json(register_user): Json<RegisterUser>,
 ) -> impl IntoResponse {
-    let hashed_password = match sha512_crypt::hash(user.password) {
+    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
+
+    let hashed_password = match sha512_crypt::hash(register_user.password) {
         Ok(hash) => hash,
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     };
 
-    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
-
-    let id_user: IdUser = match state
+    let user: PublicUser = match state
         .db
         .create("user")
-        .content(IdUser {
+        .content(User {
             id: None,
-            links: vec![
-                format!("login:{}", user.username),
-                format!("login:{}", user.email),
-                format!("authtoken:{token}"),
-            ],
+            email: register_user.email,
+            username: register_user.username,
             password: hashed_password,
-            is_male: user.is_male,
+            is_male: register_user.is_male,
+            token,
         })
         .await
     {
@@ -57,46 +52,5 @@ pub async fn register(
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     };
 
-    let _username_user: Login = match state
-        .db
-        .create(("login", user.username))
-        .content(Login {
-            id: id_user.id.clone().unwrap(),
-        })
-        .await
-    {
-        Ok(user) => user,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    };
-
-    let _email_user: Login = match state
-        .db
-        .create(("login", user.email))
-        .content(Login {
-            id: id_user.id.clone().unwrap(),
-        })
-        .await
-    {
-        Ok(user) => user,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    };
-
-    let _tokens_user: Login = match state
-        .db
-        .create(("login", token.clone()))
-        .content(Login {
-            id: id_user.id.clone().unwrap(),
-        })
-        .await
-    {
-        Ok(user) => user,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    };
-
-    let final_user: IdUser = match state.db.select(("login", token)).await {
-        Ok(user) => user,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    };
-
-    (StatusCode::OK, Json(final_user), Coo).into_response()
+    (StatusCode::CREATED, Json(user)).into_response()
 }

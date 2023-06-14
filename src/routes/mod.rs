@@ -1,5 +1,5 @@
 mod get_users;
-mod login;
+mod middlewares;
 mod register;
 
 use axum::{
@@ -10,7 +10,6 @@ use surrealdb::{engine::remote::ws::Client, Error, Surreal};
 
 use crate::database::connect;
 
-use login::login;
 use register::register;
 
 use self::get_users::get_users;
@@ -23,8 +22,12 @@ pub struct DbState {
 pub async fn create_routes() -> Result<Router, Error> {
     let db = connect().await?;
 
+    db.query("define index userEmailIndex ON TABLE user COLUMNS email UNIQUE")
+        .query("define index userUsernameIndex ON TABLE user COLUMNS username UNIQUE")
+        .query("define index userTokenIndex ON TABLE user COLUMNS token UNIQUE")
+        .await?;
+
     Ok(Router::new()
-        .route("/login", post(login))
         .route("/register", post(register))
         .route("/users", get(get_users))
         .with_state(DbState { db }))
