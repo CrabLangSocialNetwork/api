@@ -35,6 +35,7 @@ Requête : `GET /users`
 
 ## Créer un nouvel utilisateur
 Requête : `POST /register`
+
 Body (JSON) :
 - username => Chaîne de caractères
 - password => Chaîne de caractères
