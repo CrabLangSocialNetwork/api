@@ -41,3 +41,10 @@ Body (JSON) :
 - password => Chaîne de caractères
 - email => Chaîne de caractères
 - is_male (facultatif) => booléen
+
+## Se connecter
+Requête : `POST /login`
+
+Body (JSON) :
+- username_or_email => Chaîne de caractères
+- password => Chaîne de caractères

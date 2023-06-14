@@ -3,8 +3,9 @@ use hashes::sha3::sha512::hash;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
+use tower_cookies::{Cookie, Cookies};
 
-use super::{get_users::PublicUser, DbState};
+use super::DbState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterUser {
@@ -25,6 +26,7 @@ pub struct User {
 }
 
 pub async fn register(
+    cookies: Cookies,
     State(state): State<DbState>,
     Json(register_user): Json<RegisterUser>,
 ) -> impl IntoResponse {
@@ -34,7 +36,7 @@ pub async fn register(
         .into_bytes()
         .to_vec();
 
-    let user: PublicUser = match state
+    match state
         .db
         .create("user")
         .content(User {
@@ -43,7 +45,7 @@ pub async fn register(
             username: register_user.username,
             password: hashed_password,
             is_male: register_user.is_male,
-            token,
+            token: token.clone(),
         })
         .await
     {
@@ -51,5 +53,9 @@ pub async fn register(
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     };
 
-    (StatusCode::CREATED, Json(user)).into_response()
+    (
+        StatusCode::CREATED,
+        cookies.add(Cookie::new("token", token)),
+    )
+        .into_response()
 }
