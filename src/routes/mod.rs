@@ -6,7 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use surrealdb::{engine::remote::ws::Client, Error, Surreal};
+use surrealdb::{Error, Surreal, engine::local::Db};
 use tower_cookies::CookieManagerLayer;
 
 use crate::database::connect;
@@ -17,7 +17,7 @@ use self::{get_users::get_users, login::login};
 
 #[derive(Clone)]
 pub struct DbState {
-    db: Surreal<Client>,
+    db: Surreal<Db>,
 }
 
 pub async fn create_routes() -> Result<Router, Error> {
