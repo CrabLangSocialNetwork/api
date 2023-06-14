@@ -1,5 +1,5 @@
 # api
-L'API du forum
+L'API du réseau social
 
 # 1. Installation de SurrealDB
 Suivez les indications à ce lien : https://surrealdb.com/install
