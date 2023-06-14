@@ -2,8 +2,8 @@
 L'API du réseau social
 
 # Sommaire
-- [Lancer l'API](#2-lancer-lapi)
-- [Utilisation](#3-utilisation)
+- [Lancer l'API](#1-lancer-lapi)
+- [Utilisation](#2-utilisation)
     - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
     - [Créer un utilisateur](#créer-un-nouvel-utilisateur)
     - [Se connecter](#se-connecter)
