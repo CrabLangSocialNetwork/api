@@ -9,6 +9,7 @@ L'API du réseau social
 - [Utilisation](#3-utilisation)
     - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
     - [Créer un utilisateur](#créer-un-nouvel-utilisateur)
+    - [Se connecter](#se-connecter)
 
 # 1. Installation et lancement de SurrealDB
 ## a. Installation
