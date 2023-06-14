@@ -2,7 +2,7 @@
 L'API du réseau social
 
 # Sommaire
-- [Installation et lancement de SurrealDB](#1-installation-de-surrealdb)
+- [Installation et lancement de SurrealDB](#1-installation-et-lancement-de-surrealdb)
     - [Installation](#a-installation)
     - [Lancement](#b-lancement)
 - [Lancer l'API](#2-lancer-lapi)
