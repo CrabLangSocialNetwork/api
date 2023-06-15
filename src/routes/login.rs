@@ -42,5 +42,5 @@ pub async fn login(
                 .into_response();
         }
     }
-    (StatusCode::FORBIDDEN, "Identifiants invalides").into_response()
+    (StatusCode::FORBIDDEN, "Identifiants incorrects").into_response()
 }
