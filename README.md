@@ -20,8 +20,8 @@ cargo run
 Requête : `GET /users`
 
 Renvoie :
-    - Code 200 et la liste des utilisateurs au format JSON
-    - Code 500 lors d'une erreur serveur
+- Code 200 et la liste des utilisateurs au format JSON
+- Code 500 lors d'une erreur serveur
 
 ## Créer un nouvel utilisateur
 Requête : `POST /register`
@@ -33,8 +33,8 @@ Body (JSON) :
 - is_male (facultatif) => booléen
 
 Renvoie :
-    - Code 201 et le token sous forme de cookie
-    - Code 403 lorsque les indentifiants sont invalides ou déjà utilisés
+- Code 201 et le token sous forme de cookie
+- Code 403 lorsque les indentifiants sont invalides ou déjà utilisés
 
 ## Se connecter
 Requête : `POST /login`
@@ -44,5 +44,5 @@ Body (JSON) :
 - password => Chaîne de caractères
 
 Renvoie :
-    - Code 200 et le token sous forme de cookie
-    - Code 403 lorsque les indentifiants sont incorrects
+- Code 200 et le token sous forme de cookie
+- Code 403 lorsque les indentifiants sont incorrects
