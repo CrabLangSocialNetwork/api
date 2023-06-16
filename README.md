@@ -34,7 +34,7 @@ Body (JSON) :
 
 Renvoie :
 - Code 201 et le token sous forme de cookie
-- Code 403 lorsque les indentifiants sont invalides ou déjà utilisés
+- Code 403 et l'erreur sous forme de chaîne de caractères lorsque les indentifiants sont invalides ou déjà utilisés
 
 ## Se connecter
 Requête : `POST /login`

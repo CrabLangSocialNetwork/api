@@ -26,23 +26,30 @@ pub struct User {
     pub(crate) token: String,
 }
 
-fn are_credentials_valid(username: &str, password: &str, email: &str) -> bool {
+fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
     for (i, c) in username.char_indices() {
         if i == 0 {
             if !c.is_alphabetic() {
-                return false;
+                return Err("Le pseudo doit commencer par une lettre.".to_string());
             }
         }
         if !c.is_alphanumeric() && c != '_' {
-            return false;
+            return Err(
+                "Le pseudo ne peut contenir que des lettres, des nombres et des underscores."
+                    .to_string(),
+            );
         }
     }
 
     if password.len() < 8 {
-        return false;
+        return Err("Le mot de passe doit contenir au moins 8 caractères.".to_string());
     }
 
-    EmailAddress::is_valid(email)
+    if !EmailAddress::is_valid(email) {
+        return Err("L'email n'est pas valide.".to_string());
+    }
+
+    Ok(())
 }
 
 pub async fn register(
@@ -50,36 +57,53 @@ pub async fn register(
     State(state): State<DbState>,
     Json(register_user): Json<RegisterUser>,
 ) -> impl IntoResponse {
-    if !are_credentials_valid(
+    match are_credentials_valid(
         &register_user.username,
         &register_user.password,
         &register_user.email,
     ) {
-        return (StatusCode::FORBIDDEN, "Indentifiants invalides.").into_response();
+        Err(e) => return (StatusCode::FORBIDDEN, e).into_response(),
+        Ok(_) => {}
     }
-
-    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
 
     let hashed_password = hash(register_user.password.as_bytes())
         .into_bytes()
         .to_vec();
 
-    let _: User = match state
-        .db
-        .create("user")
-        .content(User {
-            id: None,
-            email: register_user.email,
-            username: register_user.username,
-            password: hashed_password,
-            is_male: register_user.is_male,
-            token: token.clone(),
-        })
-        .await
-    {
-        Ok(user) => user,
-        Err(e) => return (StatusCode::FORBIDDEN, e.to_string()).into_response(),
-    };
+    let mut token: String;
+
+    loop {
+        token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
+
+        let _: User = match state
+            .db
+            .create("user")
+            .content(User {
+                id: None,
+                email: register_user.email.clone(),
+                username: register_user.username.clone(),
+                password: hashed_password.clone(),
+                is_male: register_user.is_male,
+                token: token.clone(),
+            })
+            .await
+        {
+            Ok(user) => user,
+            Err(e) => {
+                let e = e.to_string();
+                if e.contains("index `userEmailIndex`") {
+                    return (StatusCode::FORBIDDEN, "Adresse email déjà utilisée").into_response();
+                }
+                if e.contains("index `userUsernameIndex`") {
+                    return (StatusCode::FORBIDDEN, "Nom d'utilisateur déjà utilisé")
+                        .into_response();
+                }
+                println!("Token already exists, creating another...");
+                continue;
+            }
+        };
+        break;
+    }
 
     (
         StatusCode::CREATED,
