@@ -2,19 +2,19 @@
 L'API du réseau social
 
 # Sommaire
-- [Lancer l'API](#1-lancer-lapi)
-- [Utilisation](#2-utilisation)
+- [Lancer l'API](#lancer-lapi)
+- [Utilisation](#utilisation)
     - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
     - [Créer un utilisateur](#créer-un-nouvel-utilisateur)
     - [Se connecter](#se-connecter)
 
-# 1. Lancer l'API
+# Lancer l'API
 Rien de plus simple !
 ```bash
 cargo run
 ```
 
-# 2. Utilisation
+# Utilisation
 
 ## Obtenir la liste des utilisateurs
 Requête : `GET /users`
