@@ -3,11 +3,14 @@ mod login;
 mod register;
 
 use axum::{
+    http::Method,
     routing::{get, post},
     Router,
 };
-use surrealdb::{Error, Surreal, engine::local::Db};
+use surrealdb::{engine::local::Db, Error, Surreal};
+use tower::ServiceBuilder;
 use tower_cookies::CookieManagerLayer;
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::database::connect;
 
@@ -28,10 +31,18 @@ pub async fn create_routes() -> Result<Router, Error> {
         .query("define index userTokenIndex ON TABLE user COLUMNS token UNIQUE")
         .await?;
 
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST, Method::PUT])
+        .allow_origin(Any);
+
     Ok(Router::new()
         .route("/register", post(register))
         .route("/users", get(get_users))
         .route("/login", post(login))
         .with_state(DbState { db })
-        .layer(CookieManagerLayer::new()))
+        .layer(
+            ServiceBuilder::new()
+                .layer(CookieManagerLayer::new())
+                .layer(cors),
+        ))
 }
