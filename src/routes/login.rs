@@ -22,12 +22,16 @@ pub async fn login(
         "username"
     };
 
-    let mut users = state
+    let users = state
         .db
         .query(format!("SELECT * FROM user WHERE {search_by} = $value"))
         .bind(("value", credentials.username_or_email))
-        .await
-        .unwrap();
+        .await;
+
+    let mut users = match users {
+        Ok(users) => users,
+        Err(_) => return (StatusCode::FORBIDDEN, "Identifiants incorrects").into_response()
+    };
 
     let option_user: Option<User> = users.take(0).unwrap_or_default();
 

@@ -26,7 +26,16 @@ pub struct User {
     pub(crate) token: String,
 }
 
+#[derive(Deserialize)]
+pub struct Record {
+    
+}
+
 fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
+    if password.len() < 8 {
+        return Err("Le mot de passe doit contenir au moins 8 caractères.".to_string());
+    }
+
     for (i, c) in username.char_indices() {
         if i == 0 {
             if !c.is_alphabetic() {
@@ -39,10 +48,6 @@ fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<
                     .to_string(),
             );
         }
-    }
-
-    if password.len() < 8 {
-        return Err("Le mot de passe doit contenir au moins 8 caractères.".to_string());
     }
 
     if !EmailAddress::is_valid(email) {
@@ -75,7 +80,7 @@ pub async fn register(
     loop {
         token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
 
-        let _: User = match state
+        let _: Record = match state
             .db
             .create("user")
             .content(User {

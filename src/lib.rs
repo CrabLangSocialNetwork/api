@@ -3,11 +3,13 @@ mod routes;
 
 use routes::create_routes;
 use tokio::fs::create_dir_all;
-use std::net::SocketAddr;
-use surrealdb::Error;
+use std::{net::SocketAddr, path::Path};
 
-pub async fn run() -> Result<(), Error> {
-    create_dir_all("./media/images").await.unwrap();
+pub async fn run() -> Result<(), surrealdb::Error> {
+    match create_dir_all(Path::new("media").join("images")).await {
+        Ok(_) => {},
+        Err(_) => panic!("Erreur lors de la création des dossiers media/images, pensez à vérifier les autorisations de ce dossier.")
+    };
 
     let app = create_routes().await?;
 

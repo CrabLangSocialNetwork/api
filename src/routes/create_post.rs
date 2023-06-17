@@ -22,65 +22,68 @@ pub struct Post {
     images: Vec<String>
 }
 
-pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(post): Json<CreatePost>) -> impl IntoResponse {
-    let user = authentificate(cookies, state.db.clone()).await;
+async fn decode_image(encoded_image: String) -> Result<String, String> {
+    let image = match general_purpose::STANDARD.decode(encoded_image) {
+        Ok(image) => image,
+        Err(_) => return Err("Erreur lors du décodage de l'image".to_string())
+    };
 
-    match user {
+    let image_reader = match ImageReader::new(Cursor::new(image)).with_guessed_format() {
+        Ok(image_reader) => image_reader,
+        Err(_) => return Err("Erreur lors de la création du lecteur d'image".to_string())
+    };
+
+    let image_format = match image_reader.format() {
+        Some(format) => format,
+        None => return Err("Erreur lors de la détection du format de l'image".to_string())
+    };
+    
+    let img = match image_reader.decode() {
+        Ok(image) => image,
+        Err(_) => return Err("Erreur lors du décodage de l'image".to_string())
+    };
+
+    loop {
+        let path = Path::new("media").join("images").join(format!("{}.{}",Alphanumeric.sample_string(&mut rand::thread_rng(), 38), image_format.extensions_str()[0]));
+
+        match try_exists(&path).await {
+            Ok(exists) => if exists {continue},
+            Err(_) => {}
+        }
+
+        match img.save_with_format(&path, image_format) {
+            Ok(_) => {},
+            Err(e) => {
+                println!("{e}");
+                return Err("Erreur lors de l'enregistrement de l'image".to_string())
+            }
+        };
+
+        return Ok(path.to_str().unwrap().to_string());
+    }
+}
+
+pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(post): Json<CreatePost>) -> impl IntoResponse {
+    match authentificate(cookies, state.db.clone()).await {
         Ok(_) => {},
         Err(_) => return (StatusCode::FORBIDDEN, "Vous devez être connecté.e pour pouvoir poster un post").into_response()
-    }
+    };
     
     if post.content.len() > 500 {
-        return (StatusCode::FORBIDDEN, "Post trop long").into_response();
+        return (StatusCode::FORBIDDEN, "Le post ne peut pas dépasser 500 caractères.").into_response();
     }
 
     let mut images_url: Vec<String> = vec![];
 
     if let Some(images) = post.images {
         for encoded_image in images.into_iter() {
-            let image = match general_purpose::STANDARD.decode(encoded_image) {
-                Ok(image) => image,
-                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors du décodage de l'image").into_response()
+            let image_url = match decode_image(encoded_image).await {
+                Ok(decoded_image) => decoded_image,
+                Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e).into_response()
             };
-
-            let image_reader = match ImageReader::new(Cursor::new(image)).with_guessed_format() {
-                Ok(image_reader) => image_reader,
-                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de la création du lecteur d'image").into_response()
-            };
-
-            let image_format = match image_reader.format() {
-                Some(format) => format,
-                None => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de la détection du format de l'image").into_response()
-            };
-            
-            let img = match image_reader.decode() {
-                Ok(image) => image,
-                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors du décodage de l'image").into_response()
-            };
-
-            loop {
-                let path = Path::new("media").join("images").join(format!("{}.{}",Alphanumeric.sample_string(&mut rand::thread_rng(), 38), image_format.extensions_str()[0]));
-
-                match try_exists(&path).await {
-                    Ok(exists) => if exists {continue},
-                    Err(_) => {}
-                }
-
-                match img.save_with_format(&path, image_format) {
-                    Ok(_) => {},
-                    Err(e) => {
-                        println!("{e}");
-                        return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de l'enregistrement de l'image").into_response()
-                    }
-                };
-
-                images_url.push(path.to_str().unwrap().to_string());
-                break;
-            }
+            images_url.push(image_url);
         }
     }
-
-    
 
     let _: CreatePost = match state.db.create("post").content(Post {
         content: post.content,
