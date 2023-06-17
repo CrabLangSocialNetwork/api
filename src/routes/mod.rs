@@ -1,6 +1,8 @@
 mod get_users;
 mod login;
 mod register;
+mod create_post;
+mod is_token_valid;
 
 use axum::{
     http::Method,
@@ -10,13 +12,13 @@ use axum::{
 use surrealdb::{engine::local::Db, Error, Surreal};
 use tower::ServiceBuilder;
 use tower_cookies::CookieManagerLayer;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
 
 use crate::database::connect;
 
 use register::register;
 
-use self::{get_users::get_users, login::login};
+use self::{get_users::get_users, login::login, create_post::create_post};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -35,14 +37,18 @@ pub async fn create_routes() -> Result<Router, Error> {
         .allow_methods([Method::GET, Method::POST, Method::PUT])
         .allow_origin(Any);
 
-    Ok(Router::new()
+    Ok(
+        Router::new()
         .route("/register", post(register))
         .route("/users", get(get_users))
         .route("/login", post(login))
+        .route("/post", post(create_post))
+        .nest_service("/media", ServeDir::new("media"))
         .with_state(DbState { db })
         .layer(
             ServiceBuilder::new()
                 .layer(CookieManagerLayer::new())
                 .layer(cors),
-        ))
+        )
+    )
 }

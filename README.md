@@ -46,3 +46,15 @@ Body (JSON) :
 Renvoie :
 - Code 200 et le token sous forme de cookie
 - Code 403 lorsque les indentifiants sont incorrects
+
+## Créer un post
+Requête : `POST /post`
+
+Body (JSON) :
+- content => Chaîne de caractères avec une longueure maximale de 500 caractères
+- images (facultatif) => tableau d'images encodée en base64 (en chaînes de caractères)
+
+Renvoie :
+- Code 201 et le message de succès
+- Code 403 lors d'une erreur (non connecté, post trop long) et le message d'erreur
+- Code 500 lors d'une erreur serveur et le message d'erreur
