@@ -18,7 +18,7 @@ pub struct RegisterUser {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
-    id: Option<Thing>,
+    pub(crate) id: Option<Thing>,
     email: String,
     username: String,
     pub(crate) password: Vec<u8>,

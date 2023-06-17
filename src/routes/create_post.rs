@@ -5,6 +5,7 @@ use base64::{engine::general_purpose, Engine};
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Serialize, Deserialize};
 use image::io::Reader as ImageReader;
+use surrealdb::sql::Thing;
 use tokio::fs::try_exists;
 use tower_cookies::Cookies;
 
@@ -19,7 +20,8 @@ pub struct CreatePost {
 #[derive(Serialize, Deserialize)]
 pub struct Post {
     content: String,
-    images: Vec<String>
+    images: Vec<String>,
+    author: Thing
 }
 
 async fn decode_image(encoded_image: String) -> Result<String, String> {
@@ -64,8 +66,8 @@ async fn decode_image(encoded_image: String) -> Result<String, String> {
 }
 
 pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(post): Json<CreatePost>) -> impl IntoResponse {
-    match authentificate(cookies, state.db.clone()).await {
-        Ok(_) => {},
+    let author = match authentificate(cookies, state.db.clone()).await {
+        Ok(user) => user,
         Err(_) => return (StatusCode::FORBIDDEN, "Vous devez être connecté.e pour pouvoir poster un post").into_response()
     };
     
@@ -85,9 +87,15 @@ pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(po
         }
     }
 
+    let author = match author.id {
+        Some(id) => id,
+        None => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur de connexion, vérifiez que vous êtes bien connecté.e").into_response()
+    };
+
     let _: CreatePost = match state.db.create("post").content(Post {
         content: post.content,
-        images: images_url
+        images: images_url,
+        author
     }).await {
         Ok(post) => post,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de la publication du post").into_response()
