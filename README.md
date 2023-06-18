@@ -50,6 +50,7 @@ Renvoie :
 - Code 403 lorsque les indentifiants sont incorrects
 
 ## Créer un post
+**Authentification nécessaire (par cookie de session)**
 Requête : `POST /post`
 
 Body (JSON) :
