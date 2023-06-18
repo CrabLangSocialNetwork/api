@@ -16,19 +16,24 @@ pub struct RegisterUser {
     is_male: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, PartialOrd)]
+pub enum PermissionLevel {
+    #[default]
+    Guest,
+    User,
+    Moderator,
+    Administrator
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct User {
     pub(crate) id: Option<Thing>,
     email: String,
-    username: String,
+    pub(crate) username: String,
     pub(crate) password: Vec<u8>,
     is_male: Option<bool>,
     pub(crate) token: String,
-}
-
-#[derive(Deserialize)]
-pub struct Record {
-    
+    pub(crate) permission_level: PermissionLevel
 }
 
 fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
@@ -80,7 +85,7 @@ pub async fn register(
     loop {
         token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
 
-        let _: Record = match state
+        let _: User = match state
             .db
             .create("user")
             .content(User {
@@ -90,6 +95,7 @@ pub async fn register(
                 password: hashed_password.clone(),
                 is_male: register_user.is_male,
                 token: token.clone(),
+                permission_level: PermissionLevel::User
             })
             .await
         {
@@ -103,13 +109,16 @@ pub async fn register(
                     return (StatusCode::FORBIDDEN, "Nom d'utilisateur déjà utilisé")
                         .into_response();
                 }
-                println!("Token already exists, creating another...");
-                continue;
+                if e.contains("index `userTokenIndex`") {
+                    println!("Le token de connexion généré pour {} existe déjà, création d'un nouveau...", register_user.username);
+                    continue;
+                }
+                println!("Erreur : {e}");
+                break;
             }
         };
         break;
     }
-
     (
         StatusCode::CREATED,
         cookies.add(Cookie::new("token", token)),

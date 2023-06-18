@@ -9,7 +9,7 @@ use surrealdb::sql::Thing;
 use tokio::fs::try_exists;
 use tower_cookies::Cookies;
 
-use super::{DbState, is_token_valid::authentificate};
+use super::{DbState, authentificate::authentificate, register::PermissionLevel};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreatePost {
@@ -66,10 +66,11 @@ async fn decode_image(encoded_image: String) -> Result<String, String> {
 }
 
 pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(post): Json<CreatePost>) -> impl IntoResponse {
-    let author = match authentificate(cookies, state.db.clone()).await {
-        Ok(user) => user,
-        Err(_) => return (StatusCode::FORBIDDEN, "Vous devez être connecté.e pour pouvoir poster un post").into_response()
-    };
+    let author = authentificate(cookies, &state.db).await;
+
+    if author.permission_level == PermissionLevel::default() {
+        return (StatusCode::FORBIDDEN, "Vous devez être connecté.e pour pouvoir poster un post").into_response()
+    }
     
     if post.content.len() > 500 {
         return (StatusCode::FORBIDDEN, "Le post ne peut pas dépasser 500 caractères.").into_response();

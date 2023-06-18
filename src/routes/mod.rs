@@ -2,7 +2,8 @@ mod get_users;
 mod login;
 mod register;
 mod create_post;
-mod is_token_valid;
+mod authentificate;
+mod get_posts;
 
 use axum::{
     http::Method,
@@ -18,7 +19,7 @@ use crate::database::connect;
 
 use register::register;
 
-use self::{get_users::get_users, login::login, create_post::create_post};
+use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -43,6 +44,7 @@ pub async fn create_routes() -> Result<Router, Error> {
         .route("/users", get(get_users))
         .route("/login", post(login))
         .route("/post", post(create_post))
+        .route("/posts", get(get_posts))
         .nest_service("/media", ServeDir::new("media"))
         .with_state(DbState { db })
         .layer(
