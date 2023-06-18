@@ -59,3 +59,10 @@ Renvoie :
 - Code 201 et le message de succès
 - Code 403 lors d'une erreur (non connecté, post trop long) et le message d'erreur
 - Code 500 lors d'une erreur serveur et le message d'erreur
+
+## Obtenir la liste des posts
+Requête : `GET /posts`
+
+Renvoie :
+- Code 200 et la liste des posts sous format JSON
+- Code 500 lors d'une erreur serveur
