@@ -2,10 +2,11 @@ use std::{io::Cursor, path::Path};
 
 use axum::{extract::State, response::IntoResponse, Json, http::StatusCode};
 use base64::{engine::general_purpose, Engine};
+use chrono::Utc;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Serialize, Deserialize};
 use image::io::Reader as ImageReader;
-use surrealdb::sql::Thing;
+use surrealdb::sql::{Thing, Datetime};
 use tokio::fs::try_exists;
 use tower_cookies::Cookies;
 
@@ -19,9 +20,12 @@ pub struct CreatePost {
 
 #[derive(Serialize, Deserialize)]
 pub struct Post {
+    id: Option<Thing>,
     content: String,
     images: Vec<String>,
-    author: Thing
+    author: Thing,
+    created_at: Datetime,
+    updated_at: Datetime
 }
 
 async fn decode_image(encoded_image: String) -> Result<String, String> {
@@ -93,10 +97,15 @@ pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(po
         None => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur de connexion, vérifiez que vous êtes bien connecté.e").into_response()
     };
 
-    let _: CreatePost = match state.db.create("post").content(Post {
+    let now = Datetime(Utc::now());
+
+    let _: Post = match state.db.create("post").content(Post {
+        id: None,
         content: post.content,
         images: images_url,
-        author
+        author,
+        created_at: now.clone(),
+        updated_at: now
     }).await {
         Ok(post) => post,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de la publication du post").into_response()

@@ -1,9 +1,10 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use chrono::Utc;
 use email_address::EmailAddress;
 use hashes::sha3::sha512::hash;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::sql::{Thing, Datetime};
 use tower_cookies::{Cookie, Cookies};
 
 use super::DbState;
@@ -33,7 +34,9 @@ pub struct User {
     pub(crate) password: Vec<u8>,
     is_male: Option<bool>,
     pub(crate) token: String,
-    pub(crate) permission_level: PermissionLevel
+    pub(crate) permission_level: PermissionLevel,
+    created_at: Datetime,
+    updated_at: Datetime
 }
 
 fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
@@ -85,6 +88,8 @@ pub async fn register(
     loop {
         token = Alphanumeric.sample_string(&mut rand::thread_rng(), 256);
 
+        let now = Datetime(Utc::now());
+
         let _: User = match state
             .db
             .create("user")
@@ -95,7 +100,9 @@ pub async fn register(
                 password: hashed_password.clone(),
                 is_male: register_user.is_male,
                 token: token.clone(),
-                permission_level: PermissionLevel::User
+                permission_level: PermissionLevel::User,
+                created_at: now.clone(),
+                updated_at: now.clone()
             })
             .await
         {
