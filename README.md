@@ -8,6 +8,7 @@ L'API du réseau social
     - [Créer un utilisateur](#créer-un-nouvel-utilisateur)
     - [Se connecter](#se-connecter)
     - [Créer un post](#créer-un-post)
+    - [Obtenir la liste des posts](#obtenir-la-liste-des-posts)
 
 # Lancer l'API
 Rien de plus simple !
