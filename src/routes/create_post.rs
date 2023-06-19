@@ -22,13 +22,13 @@ pub struct CreatePost {
 pub struct Post {
     id: Option<Thing>,
     pub(crate) content: String,
-    images: Vec<String>,
+    pub(crate) images: Vec<String>,
     pub(crate) author: Thing,
     created_at: Datetime,
     pub(crate) updated_at: Datetime
 }
 
-async fn decode_image_and_save_to_disk(encoded_image: String) -> Result<String, String> {
+pub async fn decode_image_and_save_to_disk(encoded_image: String) -> Result<String, String> {
     let image = match general_purpose::STANDARD.decode(encoded_image) {
         Ok(image) => image,
         Err(_) => return Err("Erreur lors du décodage de l'image".to_string())
@@ -70,8 +70,9 @@ async fn decode_image_and_save_to_disk(encoded_image: String) -> Result<String, 
 }
 
 pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(post): Json<CreatePost>) -> impl IntoResponse {
+    let now = Datetime(Utc::now());
     let author = authentificate(cookies, &state.db).await;
-
+    
     if author.permission_level == PermissionLevel::default() {
         return (StatusCode::FORBIDDEN, "Vous devez être connecté.e pour pouvoir poster un post").into_response()
     }
@@ -84,11 +85,10 @@ pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(po
 
     if let Some(images) = post.images {
         for encoded_image in images.into_iter() {
-            let image_url = match decode_image_and_save_to_disk(encoded_image).await {
-                Ok(decoded_image) => decoded_image,
+            match decode_image_and_save_to_disk(encoded_image).await {
+                Ok(url) => images_url.push(url),
                 Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e).into_response()
             };
-            images_url.push(image_url);
         }
     }
 
@@ -96,8 +96,6 @@ pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(po
         Some(id) => id,
         None => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur de connexion, vérifiez que vous êtes bien connecté.e").into_response()
     };
-
-    let now = Datetime(Utc::now());
 
     let _: Post = match state.db.create("post").content(Post {
         id: None,

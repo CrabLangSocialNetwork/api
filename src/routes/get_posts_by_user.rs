@@ -5,7 +5,7 @@ use super::{DbState, get_posts::PublicPost, authentificate::authentificate, regi
 
 pub async fn get_posts_by_user(cookies: Cookies, Path(username): Path<String>, State(state): State<DbState>) -> impl IntoResponse {
     let user = authentificate(cookies, &state.db).await;
-    let mut res = match state.db.query("SELECT id, content, images, author.username, author.permission_level, created_at, updated_at FROM post WHERE author.username == $value")
+    let mut res = match state.db.query("SELECT meta::id(id) AS id, content, images, author.username, author.permission_level, created_at, updated_at FROM post WHERE author.username == $value")
         .bind(("value", username)).await {
             Ok(res) => res,
             Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de l'obtention des posts").into_response()

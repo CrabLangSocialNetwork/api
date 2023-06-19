@@ -1,6 +1,6 @@
 use axum::{response::IntoResponse, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Datetime, Thing};
+use surrealdb::sql::Datetime;
 use tower_cookies::Cookies;
 use axum::extract::State;
 
@@ -8,7 +8,7 @@ use super::{DbState, authentificate::authentificate, register::PermissionLevel};
 
 #[derive(Deserialize, Serialize)]
 pub struct PublicPost {
-    id: Thing,
+    id: String,
     content: String,
     //vector of images links
     images: Vec<String>,
@@ -28,7 +28,7 @@ pub async fn get_posts(cookies: Cookies, State(state): State<DbState>) -> impl I
     let user = authentificate(cookies, &state.db).await;
     let has_full_permission = if user.permission_level >= PermissionLevel::Moderator { true } else { false };
 
-    let mut posts = match state.db.query("SELECT id, content, images, author.username, author.permission_level, created_at, updated_at FROM post").await {
+    let mut posts = match state.db.query("SELECT meta::id(id) AS id, content, images, author.username, author.permission_level, created_at, updated_at FROM post").await {
         Ok(res) => res,
         Err(e) => {
             println!("{e}");

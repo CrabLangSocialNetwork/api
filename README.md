@@ -115,7 +115,11 @@ Requête : `PUT /posts/:id` avec id => ID du post
 
 Body (JSON) :
 - content => Chaîne de caractères d'une longueure maximale de 500 caractères
+- images_url => Tableau d'URL d'images (peut être vide)
+- new_images (facultatif) => Tableau d'images encodées en base64
 
 Renvoie :
 - Code 201 et le message de succès
-- Code 403 lors d'une erreur et le message d'erreur
+- Code 403 et le message d'erreur lors d'une erreur
+- Code 404 et le message d'erreur lorsque le post n'existe pas
+- Code 500 lors d'une erreur serveur
