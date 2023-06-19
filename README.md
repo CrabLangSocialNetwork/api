@@ -11,6 +11,7 @@ L'API du réseau social
         - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
     - [Posts](#posts)
         - [Obtenir la liste des posts](#obtenir-la-liste-des-posts)
+        - [Obtenir la liste des posts d'un utilisateur](#obtenir-la-liste-des-posts-dun-utilisateur)
         - [Créer un post](#créer-un-post)
         - [Modifier un post](#modifier-un-post)
         
