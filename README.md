@@ -59,6 +59,7 @@ Renvoie :
 
 ### Obtenir la liste des posts
 **Authentification facultative (par cookie de session)**
+
 Requête : `GET /posts`
 
 Renvoie :
@@ -67,6 +68,7 @@ Renvoie :
 
 ### Créer un post
 **Authentification nécessaire (par cookie de session)**
+
 Requête : `POST /post`
 
 Body (JSON) :
@@ -80,6 +82,7 @@ Renvoie :
 
 ### Modifier un post
 **Authentification nécessaire (par cookie de session)**
+
 Requête : `PUT /posts/:id` avec id => ID du post
 
 Body (JSON) :
