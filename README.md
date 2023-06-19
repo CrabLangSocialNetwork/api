@@ -9,6 +9,7 @@ L'API du réseau social
         - [Se connecter](#se-connecter)
     - [Utilisateurs](#utilisateurs)
         - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
+        - [Modifier un utilisateur](#modifier-un-utilisateur)
     - [Posts](#posts)
         - [Obtenir la liste des posts](#obtenir-la-liste-des-posts)
         - [Obtenir la liste des posts d'un utilisateur](#obtenir-la-liste-des-posts-dun-utilisateur)
@@ -57,6 +58,8 @@ Renvoie :
 - Code 500 lors d'une erreur serveur
 
 ### Modifier un utilisateur
+**Authentification nécessaire (par cookie de session)**
+
 Requête : `PUT /@:username`
 
 Body (JSON) :
