@@ -63,7 +63,16 @@ Renvoie :
 Requête : `GET /posts`
 
 Renvoie :
-- Code 200 et la liste des posts sous format JSON
+- Code 200 et la liste des posts au format JSON
+- Code 500 lors d'une erreur serveur
+
+### Obtenir la liste des posts d'un utilisateur
+**Authentification facultative (par cookie de session)**
+
+Requête : `GET /@:username/posts`
+
+Renvoie :
+- Code 200 et la liste des posts au format JSON
 - Code 500 lors d'une erreur serveur
 
 ### Créer un post
