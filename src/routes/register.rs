@@ -29,19 +29,19 @@ pub enum PermissionLevel {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct User {
     pub(crate) id: Option<Thing>,
-    email: String,
+    pub(crate) email: String,
     pub(crate) username: String,
     pub(crate) password: Vec<u8>,
-    is_male: Option<bool>,
+    pub(crate) is_male: Option<bool>,
     pub(crate) token: String,
     pub(crate) permission_level: PermissionLevel,
-    created_at: Datetime,
-    updated_at: Datetime
+    pub(crate) created_at: Datetime,
+    pub(crate) updated_at: Datetime
 }
 
-fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
-    if password.len() < 8 {
-        return Err("Le mot de passe doit contenir au moins 8 caractères.".to_string());
+pub fn check_username(username: &str) -> Result<(), String> {
+    if username.len() < 5 {
+        return Err("Le pseudo doit contenir au moins 5 caractères.".to_string());
     }
 
     for (i, c) in username.char_indices() {
@@ -57,6 +57,15 @@ fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<
             );
         }
     }
+    Ok(())
+}
+
+pub fn are_credentials_valid(username: &str, password: &str, email: &str) -> Result<(), String> {
+    if password.len() < 8 {
+        return Err("Le mot de passe doit contenir au moins 8 caractères.".to_string());
+    }
+
+    check_username(username)?;
 
     if !EmailAddress::is_valid(email) {
         return Err("L'email n'est pas valide.".to_string());

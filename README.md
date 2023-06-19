@@ -56,6 +56,21 @@ Renvoie :
 - Code 200 et la liste des utilisateurs au format JSON
 - Code 500 lors d'une erreur serveur
 
+### Modifier un utilisateur
+Requête : `PUT /@:username`
+
+Body (JSON) :
+- email (optionnel) => chaîne de caractères (email valide)
+- username (optionel) => chaîne de caractères (au moins 5 caractères, commençant par une lettre, uniquement composé de lettres, nombres et underscores)
+- password (optionel) => chaîne de caractères (au moins 8 caractères)
+
+Renvoie :
+- Code 200 et le message de succès
+- Code 304 lorsqu'aucune modification n'est nécessaire
+- Code 403 lorsque l'utilisateur n'a pas la permission de modifier cet utilisateur
+- Code 404 lorsque le l'utilisateur n'est pas trouvé
+- Code 500 lors d'une erreur serveur
+
 ## Posts
 
 ### Obtenir la liste des posts
