@@ -12,6 +12,7 @@ L'API du réseau social
     - [Posts](#posts)
         - [Obtenir la liste des posts](#obtenir-la-liste-des-posts)
         - [Créer un post](#créer-un-post)
+        - [Modifier un post](#modifier-un-post)
         
 # Lancer l'API
 Rien de plus simple !
