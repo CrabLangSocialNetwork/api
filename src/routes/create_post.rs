@@ -28,7 +28,7 @@ pub struct Post {
     pub(crate) updated_at: Datetime
 }
 
-async fn decode_image(encoded_image: String) -> Result<String, String> {
+async fn decode_image_and_save_to_disk(encoded_image: String) -> Result<String, String> {
     let image = match general_purpose::STANDARD.decode(encoded_image) {
         Ok(image) => image,
         Err(_) => return Err("Erreur lors du décodage de l'image".to_string())
@@ -84,7 +84,7 @@ pub async fn create_post(cookies: Cookies, State(state): State<DbState>, Json(po
 
     if let Some(images) = post.images {
         for encoded_image in images.into_iter() {
-            let image_url = match decode_image(encoded_image).await {
+            let image_url = match decode_image_and_save_to_disk(encoded_image).await {
                 Ok(decoded_image) => decoded_image,
                 Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e).into_response()
             };
