@@ -21,11 +21,11 @@ pub struct CreatePost {
 #[derive(Serialize, Deserialize)]
 pub struct Post {
     id: Option<Thing>,
-    content: String,
+    pub(crate) content: String,
     images: Vec<String>,
-    author: Thing,
+    pub(crate) author: Thing,
     created_at: Datetime,
-    updated_at: Datetime
+    pub(crate) updated_at: Datetime
 }
 
 async fn decode_image(encoded_image: String) -> Result<String, String> {

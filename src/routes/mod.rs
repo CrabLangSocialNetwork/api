@@ -4,10 +4,11 @@ mod register;
 mod create_post;
 mod authentificate;
 mod get_posts;
+mod edit_post;
 
 use axum::{
     http::Method,
-    routing::{get, post},
+    routing::{get, post, put},
     Router,
 };
 use surrealdb::{engine::local::Db, Error, Surreal};
@@ -19,7 +20,7 @@ use crate::database::connect;
 
 use register::register;
 
-use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts};
+use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts, edit_post::edit_post};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -45,6 +46,7 @@ pub async fn create_routes() -> Result<Router, Error> {
         .route("/login", post(login))
         .route("/post", post(create_post))
         .route("/posts", get(get_posts))
+        .route("/posts/:id", put(edit_post))
         .nest_service("/media", ServeDir::new("media"))
         .with_state(DbState { db })
         .layer(

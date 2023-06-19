@@ -1,6 +1,6 @@
 use axum::{response::IntoResponse, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Datetime;
+use surrealdb::sql::{Datetime, Thing};
 use tower_cookies::Cookies;
 use axum::extract::State;
 
@@ -8,6 +8,7 @@ use super::{DbState, authentificate::authentificate, register::PermissionLevel};
 
 #[derive(Deserialize, Serialize)]
 pub struct PublicPost {
+    id: Thing,
     content: String,
     images: Vec<String>,
     author: PostAuthor,
@@ -43,10 +44,7 @@ pub async fn get_posts(cookies: Cookies, State(state): State<DbState>) -> impl I
     };
 
     let posts: Vec<PublicPost> = posts.into_iter().map(|mut post| {
-        if has_full_permission {
-            post.has_permission = true;
-        }
-        if post.author.username == user.username {
+        if has_full_permission || post.author.username == user.username {
             post.has_permission = true;
         }
         post
