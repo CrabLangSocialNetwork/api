@@ -4,12 +4,12 @@ L'API du réseau social
 # Sommaire
 - [Lancer l'API](#lancer-lapi)
 - [Utilisation](#utilisation)
-    - Auth
+    - [Auth](#auth)
         - [Créer un utilisateur](#créer-un-nouvel-utilisateur)
         - [Se connecter](#se-connecter)
-    - Utilisateurs
+    - [Utilisateurs](#utilisateurs)
         - [Liste des utilisateurs](#obtenir-la-liste-des-utilisateurs)
-    - Posts
+    - [Posts](#posts)
         - [Obtenir la liste des posts](#obtenir-la-liste-des-posts)
         - [Créer un post](#créer-un-post)
         
