@@ -10,16 +10,17 @@ use super::{DbState, authentificate::authentificate, register::PermissionLevel};
 pub struct PublicPost {
     id: Thing,
     content: String,
+    //vector of images links
     images: Vec<String>,
-    author: PostAuthor,
-    #[serde(default)] has_permission: bool,
+    pub(crate) author: PostAuthor,
+    #[serde(default)] pub(crate) has_permission: bool,
     created_at: Datetime,
     updated_at: Datetime
 }
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct PostAuthor {
-    username: String,
+    pub(crate) username: String,
     permission_level: PermissionLevel
 }
 

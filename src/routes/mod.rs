@@ -4,6 +4,7 @@ mod register;
 mod create_post;
 mod authentificate;
 mod get_posts;
+mod get_posts_by_user;
 mod edit_post;
 
 use axum::{
@@ -20,7 +21,7 @@ use crate::database::connect;
 
 use register::register;
 
-use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts, edit_post::edit_post};
+use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts, edit_post::edit_post, get_posts_by_user::get_posts_by_user};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -41,18 +42,19 @@ pub async fn create_routes() -> Result<Router, Error> {
 
     Ok(
         Router::new()
-        .route("/register", post(register))
-        .route("/users", get(get_users))
-        .route("/login", post(login))
-        .route("/post", post(create_post))
-        .route("/posts", get(get_posts))
-        .route("/posts/:id", put(edit_post))
-        .nest_service("/media", ServeDir::new("media"))
-        .with_state(DbState { db })
-        .layer(
-            ServiceBuilder::new()
-                .layer(CookieManagerLayer::new())
-                .layer(cors),
-        )
+            .route("/register", post(register))
+            .route("/users", get(get_users))
+            .route("/login", post(login))
+            .route("/post", post(create_post))
+            .route("/posts", get(get_posts))
+            .route("/@:username/posts", get(get_posts_by_user))
+            .route("/posts/:id", put(edit_post))
+            .nest_service("/media", ServeDir::new("media"))
+            .with_state(DbState { db })
+            .layer(
+                ServiceBuilder::new()
+                    .layer(CookieManagerLayer::new())
+                    .layer(cors),
+            )
     )
 }
