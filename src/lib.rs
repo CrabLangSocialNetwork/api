@@ -8,7 +8,7 @@ use std::{net::SocketAddr, path::Path};
 pub async fn run() -> Result<(), surrealdb::Error> {
     match create_dir_all(Path::new("media").join("images")).await {
         Ok(_) => {},
-        Err(_) => panic!("Erreur lors de la création des dossiers media/images, pensez à vérifier les autorisations de ce dossier.")
+        Err(_) => panic!("Erreur lors de la création des dossiers media/images, vérifiez les autorisations de ce dossier.")
     };
 
     let app = create_routes().await?;
