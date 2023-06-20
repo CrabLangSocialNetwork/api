@@ -10,7 +10,7 @@ use surrealdb::sql::{Thing, Datetime};
 use tokio::fs::try_exists;
 use tower_cookies::Cookies;
 
-use super::{DbState, authentificate::authentificate, register::PermissionLevel};
+use crate::routes::{DbState, auth::{authentificate::authentificate, register::PermissionLevel}};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreatePost {

@@ -1,7 +1,9 @@
 use axum::{response::IntoResponse, extract::{Path, State}, Json, http::StatusCode};
 use tower_cookies::Cookies;
 
-use super::{DbState, get_posts::PublicPost, authentificate::authentificate, register::PermissionLevel};
+use crate::routes::{auth::{authentificate::authentificate, register::PermissionLevel}, DbState};
+
+use super::get_posts::PublicPost;
 
 pub async fn get_posts_by_user(cookies: Cookies, Path(username): Path<String>, State(state): State<DbState>) -> impl IntoResponse {
     let username = username.to_lowercase();

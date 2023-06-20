@@ -1,12 +1,6 @@
-mod get_users;
-mod login;
-mod register;
-mod create_post;
-mod authentificate;
-mod get_posts;
-mod get_posts_by_user;
-mod edit_post;
-mod edit_user;
+mod auth;
+mod posts;
+mod users;
 
 use axum::{
     http::Method,
@@ -20,9 +14,7 @@ use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
 
 use crate::database::connect;
 
-use register::register;
-
-use self::{get_users::get_users, login::login, create_post::create_post, get_posts::get_posts, edit_post::edit_post, get_posts_by_user::get_posts_by_user, edit_user::edit_user};
+use self::{auth::{register::register, login::login}, users::{get_users::get_users, edit_user::edit_user}, posts::{create_post::create_post, get_posts::get_posts, get_posts_by_user::get_posts_by_user, edit_post::edit_post}};
 
 #[derive(Clone)]
 pub struct DbState {

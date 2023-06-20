@@ -4,7 +4,7 @@ use surrealdb::sql::Datetime;
 use tower_cookies::Cookies;
 use axum::extract::State;
 
-use super::{DbState, authentificate::authentificate, register::PermissionLevel};
+use crate::routes::{auth::{register::PermissionLevel, authentificate::authentificate}, DbState};
 
 #[derive(Deserialize, Serialize)]
 pub struct PublicPost {

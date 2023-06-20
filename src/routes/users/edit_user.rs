@@ -6,7 +6,7 @@ use surrealdb::sql::Datetime;
 use hashes::sha3::sha512::hash;
 use tower_cookies::Cookies;
 
-use super::{DbState, register::{User, check_username, PermissionLevel}, authentificate::authentificate};
+use crate::routes::{auth::{authentificate::authentificate, register::{User, PermissionLevel, check_username}}, DbState};
 
 #[derive(Serialize, Deserialize)]
 pub struct EditUser {

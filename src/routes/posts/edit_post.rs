@@ -8,7 +8,11 @@ use surrealdb::sql::Datetime;
 use tokio::fs::remove_file;
 use tower_cookies::Cookies;
 
-use super::{DbState, register::PermissionLevel, authentificate::authentificate, create_post::{Post, decode_image_and_save_to_disk}};
+use crate::routes::DbState;
+use crate::routes::auth::authentificate::authentificate;
+use crate::routes::auth::register::PermissionLevel;
+
+use super::create_post::{Post, decode_image_and_save_to_disk};
 
 #[derive(Serialize, Deserialize)]
 pub struct EditPost {

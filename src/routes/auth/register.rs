@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Thing, Datetime};
 use tower_cookies::{Cookie, Cookies};
 
-use super::DbState;
+use crate::routes::DbState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterUser {

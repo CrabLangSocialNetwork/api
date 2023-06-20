@@ -2,7 +2,7 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Datetime;
 
-use super::DbState;
+use crate::routes::DbState;
 
 #[derive(Serialize, Deserialize)]
 pub struct PublicUser {
