@@ -4,7 +4,7 @@ mod users;
 
 use axum::{
     http::Method,
-    routing::{get, post, put},
+    routing::{get, post, put, delete},
     Router,
 };
 use surrealdb::{engine::local::Db, Error, Surreal};
@@ -14,7 +14,7 @@ use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
 
 use crate::database::connect;
 
-use self::{auth::{register::register, login::login}, users::{get_users::get_users, edit_user::edit_user}, posts::{create_post::create_post, get_posts::get_posts, get_posts_by_user::get_posts_by_user, edit_post::edit_post}};
+use self::{auth::{register::register, login::login}, users::{get_users::get_users, edit_user::edit_user}, posts::{create_post::create_post, get_posts::get_posts, get_posts_by_user::get_posts_by_user, edit_post::edit_post, delete_post::delete_post}};
 
 #[derive(Clone)]
 pub struct DbState {
@@ -43,6 +43,7 @@ pub async fn create_routes() -> Result<Router, Error> {
             .route("/@:username/posts", get(get_posts_by_user))
             .route("/@:username", put(edit_user))
             .route("/posts/:id", put(edit_post))
+            .route("/posts/:id", delete(delete_post))
             .nest_service("/media", ServeDir::new("media"))
             .with_state(DbState { db })
             .layer(
