@@ -41,7 +41,7 @@ pub async fn edit_post(extract::Path(id): extract::Path<String>, cookies: Cookie
 
     for image_url in post.images.into_iter() {
         if sent_post.images_url.contains(&image_url) {
-            images.push(image_url.to_string());
+            images.push(image_url);
         } else {
             match remove_file(Path::new(&image_url)).await {
                 Ok(_) => {},
