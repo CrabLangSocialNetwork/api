@@ -79,8 +79,9 @@ pub async fn register(
     State(state): State<DbState>,
     Json(register_user): Json<RegisterUser>,
 ) -> impl IntoResponse {
+    let username = register_user.username.to_lowercase();
     match are_credentials_valid(
-        &register_user.username,
+        &username,
         &register_user.password,
         &register_user.email,
     ) {

@@ -16,8 +16,9 @@ pub struct EditUser {
 }
 
 pub async fn edit_user(cookies: Cookies, Path(username): Path<String>, State(state): State<DbState>, Json(edit_user): Json<EditUser>) -> impl IntoResponse {
-    let request_user = authentificate(cookies, &state.db).await;
     let now = Datetime(Utc::now());
+    let username = username.to_lowercase();
+    let request_user = authentificate(cookies, &state.db).await;
     let mut res = match state.db.query("SELECT * FROM user WHERE username == $value").bind(("value", username)).await {
         Ok(res) => res,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur lors de l'obtention du compte").into_response()
