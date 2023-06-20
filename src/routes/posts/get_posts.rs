@@ -2,7 +2,7 @@ use axum::{response::IntoResponse, http::StatusCode, Json};
 use tower_cookies::Cookies;
 use axum::extract::State;
 
-use crate::{routes::DbState, utils::{authentificate::authentificate, structs::{PermissionLevel, PublicPost}}};
+use crate::{routes::DbState, utils::authentificate::authentificate, structs::{user::PermissionLevel, post::PublicPost}};
 
 pub async fn get_posts(cookies: Cookies, State(state): State<DbState>) -> impl IntoResponse {
     let user = authentificate(cookies, &state.db).await;

@@ -1,6 +1,6 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
-use crate::{routes::DbState, utils::structs::PublicUser};
+use crate::{routes::DbState, structs::user::PublicUser};
 
 pub async fn get_users(State(state): State<DbState>) -> impl IntoResponse {
     let users: Vec<PublicUser> = match state.db.select("user").await {

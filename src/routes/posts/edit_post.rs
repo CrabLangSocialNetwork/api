@@ -9,8 +9,9 @@ use tokio::fs::remove_file;
 use tower_cookies::Cookies;
 
 use crate::routes::DbState;
+use crate::structs::post::Post;
+use crate::structs::user::PermissionLevel;
 use crate::utils::authentificate::authentificate;
-use crate::utils::structs::{PermissionLevel, Post};
 
 use super::create_post::decode_image_and_save_to_disk;
 

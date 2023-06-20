@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use surrealdb::sql::{Thing, Datetime};
 
@@ -24,37 +25,15 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Post {
-    pub(crate) id: Option<Thing>,
-    pub(crate) content: String,
-    pub(crate) images: Vec<String>,
-    pub(crate) author: Thing,
-    pub(crate) created_at: Datetime,
-    pub(crate) updated_at: Datetime
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct PublicPost {
-    id: String,
-    content: String,
-    //vector of images links
-    images: Vec<String>,
-    pub(crate) author: PostAuthor,
-    #[serde(default)] pub(crate) has_permission: bool,
-    created_at: Datetime,
-    updated_at: Datetime
+pub struct PublicUser {
+    username: String,
+    is_male: Option<bool>,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>
 }
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct PostAuthor {
     pub(crate) username: String,
     permission_level: PermissionLevel
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PublicUser {
-    username: String,
-    is_male: Option<bool>,
-    created_at: Datetime,
-    updated_at: Datetime
 }

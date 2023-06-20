@@ -2,7 +2,7 @@ use axum::{extract::{Path, State}, response::IntoResponse, http::StatusCode};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{routes::DbState, utils::{authentificate::authentificate, structs::{PermissionLevel, Post}}};
+use crate::{utils::authentificate::authentificate, routes::DbState, structs::{user::PermissionLevel, post::Post}};
 
 #[derive(Debug, Deserialize)]
 pub struct DeletePostUser {
