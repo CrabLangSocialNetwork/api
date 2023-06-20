@@ -16,3 +16,4 @@ Cargo.lock
 database
 media
 .log
+.vscode/
