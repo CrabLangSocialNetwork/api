@@ -55,7 +55,11 @@ Renvoie :
 Requête : `GET /users`
 
 Renvoie :
-- Code 200 et la liste des utilisateurs au format JSON
+- Code 200 et la liste des utilisateurs au format JSON :
+    - username => chaîne de caractères
+    - is_male => booléen pouvant être null
+    - created_at => Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères
+    - updated_at => Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères
 - Code 500 lors d'une erreur serveur
 
 ### Modifier un utilisateur
@@ -84,6 +88,16 @@ Requête : `GET /posts`
 
 Renvoie :
 - Code 200 et la liste des posts au format JSON
+    - id: chaîne de caractères,
+    - content: chaîne de caractères,
+    - images: Tableau d'URL d'images (chaîne de caractères),
+    - author: {
+        username: chaîne de caractères,
+        permission_level: chaîne de caractères (Guest, User, Moderator ou Administrator)
+    },
+    - has_permission: booléen,
+    - created_at: Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères,
+    - updated_at: Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères
 - Code 500 lors d'une erreur serveur
 
 ### Obtenir la liste des posts d'un utilisateur
@@ -93,6 +107,16 @@ Requête : `GET /@:username/posts`
 
 Renvoie :
 - Code 200 et la liste des posts au format JSON
+    - id: chaîne de caractères,
+    - content: chaîne de caractères,
+    - images: Tableau d'URL d'images (chaîne de caractères),
+    - author: {
+        username: chaîne de caractères,
+        permission_level: chaîne de caractères (Guest, User, Moderator ou Administrator)
+    },
+    - has_permission: booléen,
+    - created_at: Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères,
+    - updated_at: Date au format Utc (temps universel coordonné) sous forme de chaîne de caractères
 - Code 500 lors d'une erreur serveur
 
 ### Créer un post
