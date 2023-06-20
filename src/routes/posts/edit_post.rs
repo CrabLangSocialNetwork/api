@@ -67,5 +67,5 @@ pub async fn edit_post(extract::Path(id): extract::Path<String>, cookies: Cookie
     
     let _: Post = state.db.update(("post", id)).merge(post).await.unwrap();
 
-    (StatusCode::CREATED, "Post modifié avec succès !").into_response()
+    "Post modifié avec succès !".into_response()
 }

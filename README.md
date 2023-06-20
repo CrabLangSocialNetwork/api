@@ -15,6 +15,7 @@ L'API du réseau social
         - [Obtenir la liste des posts d'un utilisateur](#obtenir-la-liste-des-posts-dun-utilisateur)
         - [Créer un post](#créer-un-post)
         - [Modifier un post](#modifier-un-post)
+        - [Supprimer un post](#supprimer-un-post)
         
 # Lancer l'API
 Rien de plus simple !
@@ -119,7 +120,23 @@ Body (JSON) :
 - new_images (facultatif) => Tableau d'images encodées en base64
 
 Renvoie :
-- Code 201 et le message de succès
+- Code 200 et le message de succès
+- Code 403 et le message d'erreur lors d'une erreur
+- Code 404 et le message d'erreur lorsque le post n'existe pas
+- Code 500 lors d'une erreur serveur
+
+### Supprimer un post
+**Authentification nécessaire (par cookie de session)**
+
+Requête : `DELETE /posts/:id` avec id => ID du post
+
+Body (JSON) :
+- content => Chaîne de caractères d'une longueure maximale de 500 caractères
+- images_url => Tableau d'URL d'images (peut être vide)
+- new_images (facultatif) => Tableau d'images encodées en base64
+
+Renvoie :
+- Code 200 et le message de succès
 - Code 403 et le message d'erreur lors d'une erreur
 - Code 404 et le message d'erreur lorsque le post n'existe pas
 - Code 500 lors d'une erreur serveur
