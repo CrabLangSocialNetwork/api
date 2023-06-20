@@ -1,7 +1,7 @@
 use surrealdb::{Surreal, engine::local::Db};
 use tower_cookies::Cookies;
 
-use super::register::User;
+use super::structs::User;
 
 pub async fn authentificate(cookies: Cookies, db: &Surreal<Db>) -> User {
     let token = match cookies.get("token") {

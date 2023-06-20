@@ -1,16 +1,6 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use serde::{Deserialize, Serialize};
-use surrealdb::sql::Datetime;
 
-use crate::routes::DbState;
-
-#[derive(Serialize, Deserialize)]
-pub struct PublicUser {
-    username: String,
-    is_male: Option<bool>,
-    created_at: Datetime,
-    updated_at: Datetime
-}
+use crate::{routes::DbState, utils::structs::PublicUser};
 
 pub async fn get_users(State(state): State<DbState>) -> impl IntoResponse {
     let users: Vec<PublicUser> = match state.db.select("user").await {

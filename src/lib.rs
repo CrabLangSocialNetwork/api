@@ -1,5 +1,6 @@
 mod database;
 mod routes;
+mod utils;
 
 use routes::create_routes;
 use tokio::fs::create_dir_all;

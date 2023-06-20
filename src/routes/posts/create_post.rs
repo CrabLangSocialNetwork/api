@@ -6,26 +6,16 @@ use chrono::Utc;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Serialize, Deserialize};
 use image::io::Reader as ImageReader;
-use surrealdb::sql::{Thing, Datetime};
+use surrealdb::sql::Datetime;
 use tokio::fs::try_exists;
 use tower_cookies::Cookies;
 
-use crate::routes::{DbState, auth::{authentificate::authentificate, register::PermissionLevel}};
+use crate::{routes::DbState, utils::{authentificate::authentificate, structs::{PermissionLevel, Post}}};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreatePost {
     content: String,
     images: Option<Vec<String>>
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Post {
-    id: Option<Thing>,
-    pub(crate) content: String,
-    pub(crate) images: Vec<String>,
-    pub(crate) author: Thing,
-    created_at: Datetime,
-    pub(crate) updated_at: Datetime
 }
 
 pub async fn decode_image_and_save_to_disk(encoded_image: String) -> Result<String, String> {

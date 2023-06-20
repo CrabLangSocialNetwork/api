@@ -4,10 +4,10 @@ use email_address::EmailAddress;
 use hashes::sha3::sha512::hash;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Thing, Datetime};
+use surrealdb::sql::Datetime;
 use tower_cookies::{Cookie, Cookies};
 
-use crate::routes::DbState;
+use crate::{routes::DbState, utils::structs::{User, PermissionLevel}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterUser {
@@ -15,28 +15,6 @@ pub struct RegisterUser {
     username: String,
     password: String,
     is_male: Option<bool>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, PartialOrd)]
-pub enum PermissionLevel {
-    #[default]
-    Guest,
-    User,
-    Moderator,
-    Administrator
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct User {
-    pub(crate) id: Option<Thing>,
-    pub(crate) email: String,
-    pub(crate) username: String,
-    pub(crate) password: Vec<u8>,
-    pub(crate) is_male: Option<bool>,
-    pub(crate) token: String,
-    pub(crate) permission_level: PermissionLevel,
-    pub(crate) created_at: Datetime,
-    pub(crate) updated_at: Datetime
 }
 
 pub fn check_username(username: &str) -> Result<(), String> {

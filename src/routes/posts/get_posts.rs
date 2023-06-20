@@ -1,28 +1,8 @@
 use axum::{response::IntoResponse, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use surrealdb::sql::Datetime;
 use tower_cookies::Cookies;
 use axum::extract::State;
 
-use crate::routes::{auth::{register::PermissionLevel, authentificate::authentificate}, DbState};
-
-#[derive(Deserialize, Serialize)]
-pub struct PublicPost {
-    id: String,
-    content: String,
-    //vector of images links
-    images: Vec<String>,
-    pub(crate) author: PostAuthor,
-    #[serde(default)] pub(crate) has_permission: bool,
-    created_at: Datetime,
-    updated_at: Datetime
-}
-
-#[derive(Serialize, Deserialize, Default)]
-pub struct PostAuthor {
-    pub(crate) username: String,
-    permission_level: PermissionLevel
-}
+use crate::{routes::DbState, utils::{authentificate::authentificate, structs::{PermissionLevel, PublicPost}}};
 
 pub async fn get_posts(cookies: Cookies, State(state): State<DbState>) -> impl IntoResponse {
     let user = authentificate(cookies, &state.db).await;
